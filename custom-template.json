@@ -7,6 +7,21 @@
       "Type": "AWS::EC2::KeyPair::KeyName",
       "ConstraintDescription": "must be the name of an existing EC2 KeyPair."
     },
+    "ContainerImage": {
+      "Description" : "Remote image",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "64",
+      "ConstraintDescription" : "must begin with a letter and contain only alphanumeric characters."
+    },
+    "ContainerPort": {
+      "Default": "8000",
+      "Description" : "Container port",
+      "Type": "Number",
+      "MinValue": "1",
+      "MaxValue": "65535",
+      "ConstraintDescription" : "must be a valid port number."
+    },
     "InstanceType": {
       "Description": "WebServer EC2 instance type",
       "Type": "String",
@@ -615,7 +630,15 @@
           "Configure": {
             "commands": {
               "01_run_web_app_from_docker": {
-                "command": "docker run -d -p 80:8000 --name simple-web-app-image-aws ricar8o/simple-webapp-fastapi"
+                "command": {
+                  "Fn::Join" : ["", [
+                    "docker run -d -p 80:",
+                    { "Ref" : "ContainerPort" },
+                    " --name simple-web-app-image-aws ",
+                    { "Ref" : "ContainerImage" }
+                    ]
+                  ]
+                }
               }
             }
           }
