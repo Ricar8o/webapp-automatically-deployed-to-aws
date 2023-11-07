@@ -613,7 +613,11 @@
             }
           },
           "Configure": {
-            "commands": {}
+            "commands": {
+              "01_run_web_app_from_docker": {
+                "command": "docker run -d -p 80:8000 --name simple-web-app-image-aws ricar8o/simple-webapp-fastapi"
+              }
+            }
           }
         }
       },
