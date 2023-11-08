@@ -3,6 +3,22 @@ El objetivo de este ejercicio es desplegar una aplicación web en varias instanc
 
 ## Conceptos
 
+### FastApi
+
+[FastAPI](https://fastapi.tiangolo.com/es) es un web framework moderno y rápido (de alto rendimiento) para construir APIs con Python 3.8+ basado en las anotaciones de tipos estándar de Python.
+
+### Docker
+[Docker](https://www.docker.com/) es una tecnología de creación de contenedores que permite la creación y el uso de contenedores de Linux®. Con docker, puede usar los contenedores como máquinas virtuales extremadamente livianas y modulares.
+
+### AWS
+AWS o Amazon Web Services es un proveedor de servicios en la nube, ofrece servicios de almacenamiento, de recursos de computación, de aplicaciones, bases de datos, etc.
+
+### EC2
+Amazon Elastic Compute Cloud (EC2) es un servicio de cómputo en la nube de AWS que permite a los usuarios lanzar y administrar servidores virtuales escalables, conocidos como instancias, en la nube. Estas instancias pueden ejecutar una variedad de sistemas operativos y aplicaciones, y se utilizan para alojar aplicaciones, sitios web y otros recursos informáticos en la nube.
+
+### CloudFormation
+AWS CloudFormation es un servicio de administración de infraestructura como código que permite crear y gestionar recursos de AWS de manera automatizada y predecible mediante plantillas declarativas.
+
 
 ## Instalando los paquetes necesarios
 
