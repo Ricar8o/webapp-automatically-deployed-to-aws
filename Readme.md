@@ -22,6 +22,21 @@ AWS CloudFormation es un servicio de administración de infraestructura como có
 
 ## Instalando los paquetes necesarios
 
+**Instalando usando un archivo con una lista de paquetes**
+
+```Bash
+pip install -r requirements.txt
+```
+
+**Instalando directamente los paquetes**
+
+```Bash
+pip install fastapi
+pip install "uvicorn[standard]"
+```
+
+[uvicorn](https://www.uvicorn.org) es una implementación de servidor web ASGI para Python.
+
 ## Ejecutando la aplicación
 
 ### Local
