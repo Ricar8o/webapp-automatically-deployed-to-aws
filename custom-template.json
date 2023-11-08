@@ -541,7 +541,7 @@
     }
   },
   "Resources": {
-    "WebServerInstance": {
+    "WebServerInstance01": {
       "Type": "AWS::EC2::Instance",
       "Metadata": {
         "AWS::CloudFormation::Init": {
@@ -588,13 +588,13 @@
                     [
                       "[cfn-auto-reloader-hook]\n",
                       "triggers=post.update\n",
-                      "path=Resources.WebServerInstance.Metadata.AWS::CloudFormation::Init\n",
+                      "path=Resources.WebServerInstance01.Metadata.AWS::CloudFormation::Init\n",
                       "action=/opt/aws/bin/cfn-init -v ",
                       "         --stack ",
                       {
                         "Ref": "AWS::StackName"
                       },
-                      "         --resource WebServerInstance ",
+                      "         --resource WebServerInstance01 ",
                       "         --configsets InstallAndRun ",
                       "         --region ",
                       {
@@ -686,7 +686,7 @@
                 {
                   "Ref": "AWS::StackName"
                 },
-                "         --resource WebServerInstance ",
+                "         --resource WebServerInstance01 ",
                 "         --configsets InstallAndRun ",
                 "         --region ",
                 {
@@ -699,7 +699,357 @@
                 {
                   "Ref": "AWS::StackName"
                 },
-                "         --resource WebServerInstance ",
+                "         --resource WebServerInstance01 ",
+                "         --region ",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "\n"
+              ]
+            ]
+          }
+        }
+      },
+      "CreationPolicy": {
+        "ResourceSignal": {
+          "Timeout": "PT5M"
+        }
+      }
+    },
+    "WebServerInstance02": {
+      "Type": "AWS::EC2::Instance",
+      "Metadata": {
+        "AWS::CloudFormation::Init": {
+          "configSets": {
+            "InstallAndRun": [
+              "Install",
+              "Configure"
+            ]
+          },
+          "Install": {
+            "packages": {
+              "yum": {
+                "docker": []
+              }
+            },
+            "files": {
+              "/etc/cfn/cfn-hup.conf": {
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "[main]\n",
+                      "stack=",
+                      {
+                        "Ref": "AWS::StackId"
+                      },
+                      "\n",
+                      "region=",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      "\n"
+                    ]
+                  ]
+                },
+                "mode": "000400",
+                "owner": "root",
+                "group": "root"
+              },
+              "/etc/cfn/hooks.d/cfn-auto-reloader.conf": {
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "[cfn-auto-reloader-hook]\n",
+                      "triggers=post.update\n",
+                      "path=Resources.WebServerInstance02.Metadata.AWS::CloudFormation::Init\n",
+                      "action=/opt/aws/bin/cfn-init -v ",
+                      "         --stack ",
+                      {
+                        "Ref": "AWS::StackName"
+                      },
+                      "         --resource WebServerInstance02 ",
+                      "         --configsets InstallAndRun ",
+                      "         --region ",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      "\n",
+                      "runas=root\n"
+                    ]
+                  ]
+                },
+                "mode": "000400",
+                "owner": "root",
+                "group": "root"
+              }
+            },
+            "services": {
+              "sysvinit": {
+                "docker"  : {
+                  "enabled" : "true",
+                  "ensureRunning" : "true"
+                },
+                "cfn-hup": {
+                  "enabled": "true",
+                  "ensureRunning": "true",
+                  "files": [
+                    "/etc/cfn/cfn-hup.conf",
+                    "/etc/cfn/hooks.d/cfn-auto-reloader.conf"
+                  ]
+                }
+              }
+            }
+          },
+          "Configure": {
+            "commands": {
+              "01_run_web_app_from_docker": {
+                "command": {
+                  "Fn::Join" : ["", [
+                    "docker run -d -p 80:",
+                    { "Ref" : "ContainerPort" },
+                    " --name simple-web-app-image-aws ",
+                    { "Ref" : "ContainerImage" }
+                    ]
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "Properties": {
+        "ImageId": {
+          "Fn::FindInMap": [
+            "AWSRegionArch2AMI",
+            {
+              "Ref": "AWS::Region"
+            },
+            {
+              "Fn::FindInMap": [
+                "AWSInstanceType2Arch",
+                {
+                  "Ref": "InstanceType"
+                },
+                "Arch"
+              ]
+            }
+          ]
+        },
+        "InstanceType": {
+          "Ref": "InstanceType"
+        },
+        "SecurityGroups": [
+          {
+            "Ref": "WebServerSecurityGroup"
+          }
+        ],
+        "KeyName": {
+          "Ref": "KeyName"
+        },
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash -xe\n",
+                "yum update -y aws-cfn-bootstrap\n",
+                "# Install the files and packages from the metadata\n",
+                "/opt/aws/bin/cfn-init -v ",
+                "         --stack ",
+                {
+                  "Ref": "AWS::StackName"
+                },
+                "         --resource WebServerInstance02 ",
+                "         --configsets InstallAndRun ",
+                "         --region ",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "\n",
+                "# Signal the status from cfn-init\n",
+                "/opt/aws/bin/cfn-signal -e $? ",
+                "         --stack ",
+                {
+                  "Ref": "AWS::StackName"
+                },
+                "         --resource WebServerInstance02 ",
+                "         --region ",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "\n"
+              ]
+            ]
+          }
+        }
+      },
+      "CreationPolicy": {
+        "ResourceSignal": {
+          "Timeout": "PT5M"
+        }
+      }
+    },
+    "WebServerInstance03": {
+      "Type": "AWS::EC2::Instance",
+      "Metadata": {
+        "AWS::CloudFormation::Init": {
+          "configSets": {
+            "InstallAndRun": [
+              "Install",
+              "Configure"
+            ]
+          },
+          "Install": {
+            "packages": {
+              "yum": {
+                "docker": []
+              }
+            },
+            "files": {
+              "/etc/cfn/cfn-hup.conf": {
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "[main]\n",
+                      "stack=",
+                      {
+                        "Ref": "AWS::StackId"
+                      },
+                      "\n",
+                      "region=",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      "\n"
+                    ]
+                  ]
+                },
+                "mode": "000400",
+                "owner": "root",
+                "group": "root"
+              },
+              "/etc/cfn/hooks.d/cfn-auto-reloader.conf": {
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "[cfn-auto-reloader-hook]\n",
+                      "triggers=post.update\n",
+                      "path=Resources.WebServerInstance03.Metadata.AWS::CloudFormation::Init\n",
+                      "action=/opt/aws/bin/cfn-init -v ",
+                      "         --stack ",
+                      {
+                        "Ref": "AWS::StackName"
+                      },
+                      "         --resource WebServerInstance03 ",
+                      "         --configsets InstallAndRun ",
+                      "         --region ",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      "\n",
+                      "runas=root\n"
+                    ]
+                  ]
+                },
+                "mode": "000400",
+                "owner": "root",
+                "group": "root"
+              }
+            },
+            "services": {
+              "sysvinit": {
+                "docker"  : {
+                  "enabled" : "true",
+                  "ensureRunning" : "true"
+                },
+                "cfn-hup": {
+                  "enabled": "true",
+                  "ensureRunning": "true",
+                  "files": [
+                    "/etc/cfn/cfn-hup.conf",
+                    "/etc/cfn/hooks.d/cfn-auto-reloader.conf"
+                  ]
+                }
+              }
+            }
+          },
+          "Configure": {
+            "commands": {
+              "01_run_web_app_from_docker": {
+                "command": {
+                  "Fn::Join" : ["", [
+                    "docker run -d -p 80:",
+                    { "Ref" : "ContainerPort" },
+                    " --name simple-web-app-image-aws ",
+                    { "Ref" : "ContainerImage" }
+                    ]
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "Properties": {
+        "ImageId": {
+          "Fn::FindInMap": [
+            "AWSRegionArch2AMI",
+            {
+              "Ref": "AWS::Region"
+            },
+            {
+              "Fn::FindInMap": [
+                "AWSInstanceType2Arch",
+                {
+                  "Ref": "InstanceType"
+                },
+                "Arch"
+              ]
+            }
+          ]
+        },
+        "InstanceType": {
+          "Ref": "InstanceType"
+        },
+        "SecurityGroups": [
+          {
+            "Ref": "WebServerSecurityGroup"
+          }
+        ],
+        "KeyName": {
+          "Ref": "KeyName"
+        },
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash -xe\n",
+                "yum update -y aws-cfn-bootstrap\n",
+                "# Install the files and packages from the metadata\n",
+                "/opt/aws/bin/cfn-init -v ",
+                "         --stack ",
+                {
+                  "Ref": "AWS::StackName"
+                },
+                "         --resource WebServerInstance03 ",
+                "         --configsets InstallAndRun ",
+                "         --region ",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "\n",
+                "# Signal the status from cfn-init\n",
+                "/opt/aws/bin/cfn-signal -e $? ",
+                "         --stack ",
+                {
+                  "Ref": "AWS::StackName"
+                },
+                "         --resource WebServerInstance03 ",
                 "         --region ",
                 {
                   "Ref": "AWS::Region"
@@ -740,8 +1090,8 @@
     }
   },
   "Outputs": {
-    "WebsiteURL": {
-      "Description": "URL for newly created LAMP stack",
+    "Website01URL": {
+      "Description": "URL for first website",
       "Value": {
         "Fn::Join": [
           "",
@@ -749,7 +1099,41 @@
             "http://",
             {
               "Fn::GetAtt": [
-                "WebServerInstance",
+                "WebServerInstance01",
+                "PublicDnsName"
+              ]
+            }
+          ]
+        ]
+      }
+    },
+    "Website02URL": {
+      "Description": "URL for second website",
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "http://",
+            {
+              "Fn::GetAtt": [
+                "WebServerInstance02",
+                "PublicDnsName"
+              ]
+            }
+          ]
+        ]
+      }
+    },
+    "Website03URL": {
+      "Description": "URL for third website",
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "http://",
+            {
+              "Fn::GetAtt": [
+                "WebServerInstance03",
                 "PublicDnsName"
               ]
             }
