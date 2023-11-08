@@ -51,7 +51,7 @@ def get_songs_list():
 @app.get("/movies", response_class=HTMLResponse)
 def get_movies_list():
     movies = [
-        '"Pulp Fiction" (1994)'
+        '"Pulp Fiction" (1994)',
         '"The Godfather" (1972)',
         '"The Dark Knight" (2008)',
         '"The Guardians of the Galaxy" (2014)',
