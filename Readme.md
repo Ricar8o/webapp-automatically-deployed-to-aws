@@ -60,7 +60,7 @@ docker run -d -p 80:8000 --name simple-web-app-image-aws ricar8o/simple-webapp-f
 
 ## Uso de la Plantilla en CloudFormation
 
-En la plantilla [custom-template.json](custom-template.json) se definieron los parámetros, recursos y pasos para desplegar un security group, y 3 instancias donde cada una, a traves de docker, ejecute un contenedor de la imagen del aplicativo que fue subida a dockerhub.
+En la plantilla [custom-template.json](custom-template.json) se definieron los parámetros, recursos y pasos para desplegar un security group, y 3 instancias donde cada una, a través de docker, ejecute un contenedor de la imagen del aplicativo que fue subida a dockerhub.
 
 
 1. Creando la pila con el archivo base
